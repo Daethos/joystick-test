@@ -16,11 +16,11 @@ export class MainMenu extends Scene
 
     create ()
     {
-        this.background = this.add.image(512, 384, 'background');
+        this.background = this.add.image(this.cameras.scene.scale.width / 2, window.innerHeight / 2, 'background'); // 512, 384
 
-        this.logo = this.add.image(512, 300, 'logo').setDepth(100);
+        this.logo = this.add.image(this.cameras.scene.scale.width / 2, window.innerHeight / 2 - 50, 'logo').setDepth(50); // 512, 300
 
-        this.title = this.add.text(512, 460, 'Main Menu', {
+        this.title = this.add.text(this.cameras.scene.scale.width / 2, window.innerHeight / 2 + 50, 'Main Menu', { // 512, 460
             fontFamily: 'Arial Black', fontSize: 38, color: '#ffffff',
             stroke: '#000000', strokeThickness: 8,
             align: 'center'
