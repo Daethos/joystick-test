@@ -31,6 +31,7 @@ type Button = {
 
 export default class ButtonContainer extends Phaser.GameObjects.Container {
     scene: Game;
+    buttonText: Phaser.GameObjects.Text;
     constructor(scene: Game) {
         super(scene);
         scene.add.existing(this);
@@ -43,7 +44,7 @@ export default class ButtonContainer extends Phaser.GameObjects.Container {
         const buttonX = width - 100;
         const buttonY = height * 0.85; // Negative sign for Y to start from top
         
-        let circle: Button = {
+        let button: Button = {
             key: 'action',
             name: 'Reset',
             border: new Phaser.GameObjects.Graphics(scene),
@@ -57,45 +58,42 @@ export default class ButtonContainer extends Phaser.GameObjects.Container {
             width: 25,
         };
         
-        circle.graphic.fillStyle(0x000000, SETTINGS.OPACITY);
-        circle.graphic.fillCircle(buttonX, buttonY, circle.width as number);
+        button.graphic.fillStyle(0x000000, SETTINGS.OPACITY);
+        button.graphic.fillCircle(buttonX, buttonY, button.width as number);
         
-        circle.border.lineStyle(SETTINGS.BORDER_LINE, SETTINGS.BORDER_COLOR, SETTINGS.OPACITY);
-        circle.border.strokeCircle(buttonX, buttonY, circle.width + 2 as number);
+        button.border.lineStyle(SETTINGS.BORDER_LINE, SETTINGS.BORDER_COLOR, SETTINGS.OPACITY);
+        button.border.strokeCircle(buttonX, buttonY, button.width + 2 as number);
         
-        circle.graphic.setInteractive(new Phaser.Geom.Circle(
+        button.graphic.setInteractive(new Phaser.Geom.Circle(
             buttonX, buttonY, 
-            circle.width), 
+            button.width), 
             Phaser.Geom.Circle.Contains)
                 .on('pointerup', (_pointer: any, _localX: any, _localY: any, _event: any) => {
-                    this.pressButton(circle);
+                    this.pressButton(button);
                 });
-                // .on('pointerup', (_pointer: any, _localX: any, _localY: any, _event: any) => {
-                //     // this.pressButton(circle, this);
-                //     console.log('Action Button --- POINTERUP ---');
-                //     circle.graphic.clear();
-                //     circle.border.clear();
-                //     circle.graphic.fillStyle(0x000000, SETTINGS.OPACITY);
-                //     circle.graphic.fillCircle(buttonX, buttonY, circle.width as number);
-                //     circle.border.lineStyle(SETTINGS.BORDER_LINE, SETTINGS.BORDER_COLOR, SETTINGS.OPACITY);
-                //     circle.border.strokeCircle(buttonX, buttonY, circle.width + 2 as number);
-                // }); 
         
-        circle.graphic.setScrollFactor(0);
-        circle.border.setScrollFactor(0);
-        circle.graphic.setDepth(2);
+        button.graphic.setScrollFactor(0);
+        button.border.setScrollFactor(0);
+        button.graphic.setDepth(2);
         
-        this.add(circle.border);
-        this.add(circle.graphic);
+        this.add(button.border);
+        this.add(button.graphic);
+
+        this.buttonText = scene.add.text(scene.cameras.scene.scale.width * 0.7 + 5, window.innerHeight - 140, 'Reset Pointer', {
+            fontFamily: 'Arial Black', fontSize: 24, color: '#fdf6d8', stroke: '#000000', strokeThickness: 6, align: 'center'
+        }).setDepth(101);
     };
     
     pressButton(button: Button) {
         console.log('Action Button --- POINTERUP ---');
-        this.scene.joystick.resetPointer();
+        // this.scene.joystick.resetPointer();
+
         let time: number = 0;
         button.border.clear();
         button.border.lineStyle(SETTINGS.BORDER_LINE, 0x000000, SETTINGS.OPACITY);
         button.border.strokeCircle(button.x, button.y, (SETTINGS.BUTTON_WIDTH + 3) * SETTINGS.SCALE * button.current / button.total);
+        this.buttonText.setColor('#000000');
+        this.buttonText.setStroke('#fdf6d8', 6);
         this.setCurrent(time, button.total, button);
         const timer = this.scene.time.addEvent({
             delay: 50,
@@ -103,8 +101,11 @@ export default class ButtonContainer extends Phaser.GameObjects.Container {
                 time += 5;
                 this.setCurrent(time, button.total, button);
                 if (time >= button.total) {
-                    timer.remove();
-                }    
+                    this.buttonText.setColor('#fdf6d8');
+                    this.buttonText.setStroke('#000000', 6);
+                    timer.remove(false);
+                    timer.destroy();
+                };  
             },
             loop: true,
         });

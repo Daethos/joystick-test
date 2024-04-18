@@ -48,10 +48,6 @@ export class Game extends Scene
         //     resetButton.setStroke('#000000', 6);
         // });
 
-        // this.buttonText = this.add.text(this.cameras.scene.scale.width * 0.7 + 5, window.innerHeight - 140, 'Reset [Good]', {
-        //     fontFamily: 'Arial Black', fontSize: 24, color: '#ffc700', stroke: '#000000', strokeThickness: 6, align: 'center'
-        // }).setDepth(101);
-
         // let button = {
         //     border: new Phaser.GameObjects.Graphics(this),
         //     graphic: new Phaser.GameObjects.Graphics(this),
@@ -70,14 +66,6 @@ export class Game extends Scene
         //             this.joystick.resetPointer();
 
         //         })
-        //         .on('pointerover', () => {
-        //             this.buttonText.setColor('#000000');
-        //             this.buttonText.setStroke('#ffc700', 6);
-        //         })
-        //         .on('pointerout', () => {
-        //             this.buttonText.setColor('#ffc700');
-        //             this.buttonText.setStroke('#000000', 6);
-        //         });
 
         // button.graphic.setScrollFactor(0);
         // button.border.setScrollFactor(0);
