@@ -144,7 +144,7 @@ export class Game extends Scene
             buttonX, buttonY, 
             circle.width), 
             Phaser.Geom.Circle.Contains)
-                .on('pointerdown', (_pointer: any, _localX: any, _localY: any, _event: any) => {
+                .on('pointerup', (_pointer: any, _localX: any, _localY: any, _event: any) => {
                     this.pressButton(circle);
                 });
                 // .on('pointerup', (_pointer: any, _localX: any, _localY: any, _event: any) => {
@@ -174,7 +174,7 @@ export class Game extends Scene
     }
 
     pressButton(button: Button) {
-        console.log('Action Button --- POINTERDOWN ---');
+        console.log('Action Button --- POINTERUP ---');
         this.joystick.resetPointer();
         let time: number = 0;
         this.setCurrent(time, button.total, button);
