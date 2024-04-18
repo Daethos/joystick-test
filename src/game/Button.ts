@@ -79,14 +79,14 @@ export default class ButtonContainer extends Phaser.GameObjects.Container {
         this.add(button.border);
         this.add(button.graphic);
 
-        this.buttonText = scene.add.text(scene.cameras.scene.scale.width * 0.7 + 5, window.innerHeight - 140, 'Reset Pointer', {
+        this.buttonText = scene.add.text(button.x + 0, button.y - 50, 'Reset Pointer', {
             fontFamily: 'Arial Black', fontSize: 24, color: '#fdf6d8', stroke: '#000000', strokeThickness: 6, align: 'center'
-        }).setDepth(101);
+        }).setDepth(101).setOrigin(0.5);
     };
     
     pressButton(button: Button) {
-        console.log('Action Button --- POINTERUP ---');
-        // this.scene.joystick.resetPointer();
+        // console.log('Action Button --- POINTERUP ---');
+        this.scene.joystick.resetPointer();
 
         let time: number = 0;
         button.border.clear();

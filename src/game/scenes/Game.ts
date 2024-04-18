@@ -21,6 +21,7 @@ export class Game extends Scene
     {
         this.camera = this.cameras.main;
         this.camera.setBackgroundColor(0x0000ff);
+        this.input.addPointer(3);
 
         this.background = this.add.image(this.cameras.scene.scale.width / 2, window.innerHeight / 2, 'background');
         this.background.setAlpha(0.5);
