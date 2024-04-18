@@ -8,6 +8,8 @@ export class Game extends Scene
     background: Phaser.GameObjects.Image;
     gameText: Phaser.GameObjects.Text;
     joystick: any;
+    button: Phaser.GameObjects.Graphics;
+    buttonText: Phaser.GameObjects.Text;
 
     constructor ()
     {
@@ -22,23 +24,31 @@ export class Game extends Scene
         this.background = this.add.image(this.cameras.scene.scale.width / 2, window.innerHeight / 2, 'background');
         this.background.setAlpha(0.5);
 
-        this.gameText = this.add.text(this.cameras.scene.scale.width / 2, window.innerHeight / 2 - 100, 'Testing the Joystick Now', {
-            fontFamily: 'Arial Black', fontSize: 38, color: '#ffffff',
-            stroke: '#000000', strokeThickness: 8,
-            align: 'center'
+        this.gameText = this.add.text(this.cameras.scene.scale.width / 2, window.innerHeight / 2 - 125, 'Testing the Joystick Now', {
+            fontFamily: 'Arial Black', fontSize: 38, color: '#ffffff', stroke: '#000000', strokeThickness: 8, align: 'center'
         }).setOrigin(0.5).setDepth(100);
 
-        this.joystick = new Joystick(this, 150, this.camera.height * 0.8);
+        this.joystick = new Joystick(this, 150, this.camera.height * 0.7);
 
-        const resetButton = this.add.text(this.cameras.scene.scale.width / 2, window.innerHeight - 50, 'Reset Pointer', {
-            fontFamily: 'Arial Black', fontSize: 24, color: '#ffffff',
-            stroke: '#000000', strokeThickness: 6,
-            align: 'center'
-        }).setOrigin(0.5).setDepth(100).setInteractive();
+        const resetButton = this.add.text(this.cameras.scene.scale.width * 0.7, window.innerHeight / 2 - 50, 'Reset [Bad]', {
+            fontFamily: 'Arial Black', fontSize: 24, color: '#ffffff', stroke: '#000000', strokeThickness: 6, align: 'center'
+        }).setDepth(100).setInteractive();
 
-        resetButton.on('pointerup', () => {
+        resetButton.on('pointerdown', () => {
             this.joystick.resetPointer();
         });
+
+        this.button = new Phaser.GameObjects.Graphics(this)
+            .setInteractive(new Phaser.Geom.Rectangle(this.cameras.scene.scale.width * 0.7, window.innerHeight - 150, window.innerWidth * 0.225, 50), Phaser.Geom.Rectangle.Contains)
+            .on('pointerup', (_pointer: any, _localX: any, _localY: any, _event: any) => {
+                this.joystick.resetPointer();
+            });
+
+        this.buttonText = this.add.text(this.cameras.scene.scale.width * 0.7, window.innerHeight - 140, 'Reset [Good]', {
+            fontFamily: 'Arial Black', fontSize: 24, color: '#ffffff', stroke: '#000000', strokeThickness: 6, align: 'center'
+        });
+
+        this.add.existing(this.button);
 
         EventBus.emit('current-scene-ready', this);
     }
