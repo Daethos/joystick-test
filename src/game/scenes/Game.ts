@@ -35,60 +35,57 @@ export class Game extends Scene
         }).setDepth(100).setInteractive();
 
         resetButton.on('pointerdown', () => {
-            console.log('Reset [Bad]')
             this.joystick.resetPointer();
         });
+        resetButton.on('pointerover', () => {
+            resetButton.setColor('#000000');
+            resetButton.setStroke('#fdf6d8', 6);
+        });
+        resetButton.on('pointerout', () => {
+            resetButton.setColor('#ffffff');
+            resetButton.setStroke('#000000', 6);
+        });
 
-        this.button = {
-            // key: 'action',
-            // name: Object.keys(element)[0],
+        this.buttonText = this.add.text(this.cameras.scene.scale.width * 0.7 + 5, window.innerHeight - 140, 'Reset [Good]', {
+            fontFamily: 'Arial Black', fontSize: 24, color: '#ffc700', stroke: '#000000', strokeThickness: 6, align: 'center'
+        }).setDepth(101);
+
+        let button = {
             border: new Phaser.GameObjects.Graphics(this),
             graphic: new Phaser.GameObjects.Graphics(this),
-            color: 0x000000,
-            current: 100,
-            total: 100,
             x: this.cameras.scene.scale.width * 0.7,
             y: window.innerHeight - 150,
             height: 50,
-            width: 200,
+            width: window.innerWidth * 0.225,
         };
 
-        // this.button.graphic.fillStyle(this.button.color, 1);
-        // this.button.graphic.fillCircle(this.button.x, this.button.y, this.button.width as number);
-        // // this.button.graphic.setVisible(true);
-        
-        // this.button.border.lineStyle(2, 0xFDF6D8, 1);
-        // this.button.border.strokeCircle(this.button.x, this.button.y, this.button.width + 2 as number);
-        // this.button.border.setVisible(true);
-
-        this.button.graphic.setInteractive(new Phaser.Geom.Rectangle(
-            this.button.x, this.button.y, 
-            this.button.width, this.button.height), 
+        button.graphic.setInteractive(new Phaser.Geom.Rectangle(
+            button.x, button.y, 
+            button.width, button.height), 
             Phaser.Geom.Rectangle.Contains)
                 .on('pointerdown', (_pointer: any, _localX: any, _localY: any, _event: any) => {
-                    // this.pressButton(button, scene);
                     console.log('Reset [Good]');
                     this.joystick.resetPointer();
 
-                }); 
+                })
+                .on('pointerover', () => {
+                    this.buttonText.setColor('#000000');
+                    this.buttonText.setStroke('#ffc700', 6);
+                })
+                .on('pointerout', () => {
+                    this.buttonText.setColor('#ffc700');
+                    this.buttonText.setStroke('#000000', 6);
+                });
 
-        this.button.graphic.setScrollFactor(0);
-        this.button.border.setScrollFactor(0);
-        this.button.graphic.setDepth(100);
-        this.button.border.setDepth(101);
+        button.graphic.setScrollFactor(0);
+        button.border.setScrollFactor(0);
+        button.graphic.setDepth(100);
+        button.border.setDepth(100);
 
-
-        // this.button = new Phaser.GameObjects.Graphics(this)
-        //     .setInteractive(new Phaser.Geom.Rectangle(this.cameras.scene.scale.width * 0.7, window.innerHeight - 150, window.innerWidth * 0.225, 50), Phaser.Geom.Rectangle.Contains)
-        //     .on('pointerup', (_pointer: any, _localX: any, _localY: any, _event: any) => {
-        //         this.joystick.resetPointer();
-        //     });
-
-        this.buttonText = this.add.text(this.cameras.scene.scale.width * 0.7, window.innerHeight - 140, 'Reset [Good]', {
-            fontFamily: 'Arial Black', fontSize: 24, color: '#ffffff', stroke: '#000000', strokeThickness: 6, align: 'center'
-        });
-
-        // this.add.existing(this.button);
+        this.button = button;
+        this.add.existing(button.graphic);
+        this.add.existing(button.border);
+        this.add.existing(resetButton);
 
         EventBus.emit('current-scene-ready', this);
     }
