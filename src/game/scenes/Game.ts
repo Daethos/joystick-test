@@ -2,6 +2,35 @@ import { EventBus } from '../EventBus';
 import { Scene } from 'phaser';
 import Joystick from '../Joystick';
 
+const SETTINGS = {
+    SCALE: 1,
+    BUTTON_WIDTH: 24,
+    BUTTON_HEIGHT: 24,
+    OPACITY: 0.2,
+    BORDER_COLOR: 0xFDF6D8,
+    BORDER_LINE: 3,
+    STRAFE_X_OFFSET: 1.7,
+    STRAFE_Y_OFFSET: 3,
+    STRAFE_X_SCALE: 2.75,
+    STRAFE_Y_SCALE: 1.5,
+};
+
+type ActionButton = {
+    key: string;
+    name: string;
+    border: Phaser.GameObjects.Graphics;
+    graphic: Phaser.GameObjects.Graphics;
+    color: number;
+    current: number;
+    total: number;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    circle?: number;
+    on?: (event: string, fn: () => void, context?: any) => void;
+};
+
 export class Game extends Scene
 {
     camera: Phaser.Cameras.Scene2D.Camera;
@@ -64,7 +93,7 @@ export class Game extends Scene
             button.width, button.height), 
             Phaser.Geom.Rectangle.Contains)
                 .on('pointerdown', (_pointer: any, _localX: any, _localY: any, _event: any) => {
-                    console.log('Reset [Good]');
+                    // console.log('Reset [Good]');
                     this.joystick.resetPointer();
 
                 })
@@ -86,6 +115,62 @@ export class Game extends Scene
         this.add.existing(button.graphic);
         this.add.existing(button.border);
         this.add.existing(resetButton);
+
+        const { width, height } = this.camera;
+        const buttonX = width - 100;
+        const buttonY = height * 0.85; // Negative sign for Y to start from top
+        
+        let actionButton: ActionButton = {
+            key: 'action',
+            name: 'Reset',
+            border: new Phaser.GameObjects.Graphics(this),
+            graphic: new Phaser.GameObjects.Graphics(this),
+            color: 0x000000,
+            current: 100,
+            total: 100,
+            x: buttonX,
+            y: buttonY,
+            height: 25,
+            width: 25,
+        };
+
+        actionButton.graphic.fillStyle(0x000000, SETTINGS.OPACITY);
+        actionButton.graphic.fillCircle(buttonX, buttonY, actionButton.width as number);
+        // actionButton.graphic.setVisible(true);
+        
+        actionButton.border.lineStyle(SETTINGS.BORDER_LINE, SETTINGS.BORDER_COLOR, SETTINGS.OPACITY);
+        actionButton.border.strokeCircle(buttonX, buttonY, actionButton.width + 2 as number);
+        // actionButton.border.setVisible(true);
+
+        actionButton.graphic.setInteractive(new Phaser.Geom.Circle(
+            buttonX, buttonY, 
+            actionButton.width), 
+            Phaser.Geom.Circle.Contains)
+                .on('pointerdown', (_pointer: any, _localX: any, _localY: any, _event: any) => {
+                    console.log('Action Button --- POINTERDOWN ---');
+                    actionButton.graphic.fillStyle(0x000000, 1);
+                    actionButton.graphic.fillCircle(buttonX, buttonY, actionButton.width as number);
+                    actionButton.border.lineStyle(SETTINGS.BORDER_LINE, SETTINGS.BORDER_COLOR, 1);
+                    actionButton.border.strokeCircle(buttonX, buttonY, actionButton.width + 2 as number);
+                })
+                .on('pointerup', (_pointer: any, _localX: any, _localY: any, _event: any) => {
+                    // this.pressButton(actionButton, this);
+                    console.log('Action Button --- POINTERUP ---');
+                    actionButton.graphic.clear();
+                    actionButton.border.clear();
+                    actionButton.graphic.fillStyle(0x000000, SETTINGS.OPACITY);
+                    actionButton.graphic.fillCircle(buttonX, buttonY, actionButton.width as number);
+                    actionButton.border.lineStyle(SETTINGS.BORDER_LINE, SETTINGS.BORDER_COLOR, SETTINGS.OPACITY);
+                    actionButton.border.strokeCircle(buttonX, buttonY, actionButton.width + 2 as number);
+                }); 
+
+        actionButton.graphic.setScrollFactor(0);
+        actionButton.border.setScrollFactor(0);
+        actionButton.graphic.setDepth(2);
+
+        // this.actionButtons.push(actionButton);
+        this.add.existing(actionButton.border);
+        this.add.existing(actionButton.graphic);
 
         EventBus.emit('current-scene-ready', this);
     }
