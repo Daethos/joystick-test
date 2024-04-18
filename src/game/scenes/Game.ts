@@ -6,7 +6,7 @@ const SETTINGS = {
     SCALE: 1,
     BUTTON_WIDTH: 24,
     BUTTON_HEIGHT: 24,
-    OPACITY: 0.2,
+    OPACITY: 1,
     BORDER_COLOR: 0xFDF6D8,
     BORDER_LINE: 3,
     STRAFE_X_OFFSET: 1.7,
@@ -15,7 +15,7 @@ const SETTINGS = {
     STRAFE_Y_SCALE: 1.5,
 };
 
-type ActionButton = {
+type Button = {
     key: string;
     name: string;
     border: Phaser.GameObjects.Graphics;
@@ -120,7 +120,7 @@ export class Game extends Scene
         const buttonX = width - 100;
         const buttonY = height * 0.85; // Negative sign for Y to start from top
         
-        let actionButton: ActionButton = {
+        let circle: Button = {
             key: 'action',
             name: 'Reset',
             border: new Phaser.GameObjects.Graphics(this),
@@ -134,43 +134,36 @@ export class Game extends Scene
             width: 25,
         };
 
-        actionButton.graphic.fillStyle(0x000000, SETTINGS.OPACITY);
-        actionButton.graphic.fillCircle(buttonX, buttonY, actionButton.width as number);
-        // actionButton.graphic.setVisible(true);
+        circle.graphic.fillStyle(0x000000, SETTINGS.OPACITY);
+        circle.graphic.fillCircle(buttonX, buttonY, circle.width as number);
         
-        actionButton.border.lineStyle(SETTINGS.BORDER_LINE, SETTINGS.BORDER_COLOR, SETTINGS.OPACITY);
-        actionButton.border.strokeCircle(buttonX, buttonY, actionButton.width + 2 as number);
-        // actionButton.border.setVisible(true);
+        circle.border.lineStyle(SETTINGS.BORDER_LINE, SETTINGS.BORDER_COLOR, SETTINGS.OPACITY);
+        circle.border.strokeCircle(buttonX, buttonY, circle.width + 2 as number);
 
-        actionButton.graphic.setInteractive(new Phaser.Geom.Circle(
+        circle.graphic.setInteractive(new Phaser.Geom.Circle(
             buttonX, buttonY, 
-            actionButton.width), 
+            circle.width), 
             Phaser.Geom.Circle.Contains)
                 .on('pointerdown', (_pointer: any, _localX: any, _localY: any, _event: any) => {
-                    console.log('Action Button --- POINTERDOWN ---');
-                    actionButton.graphic.fillStyle(0x000000, 1);
-                    actionButton.graphic.fillCircle(buttonX, buttonY, actionButton.width as number);
-                    actionButton.border.lineStyle(SETTINGS.BORDER_LINE, SETTINGS.BORDER_COLOR, 1);
-                    actionButton.border.strokeCircle(buttonX, buttonY, actionButton.width + 2 as number);
-                })
-                .on('pointerup', (_pointer: any, _localX: any, _localY: any, _event: any) => {
-                    // this.pressButton(actionButton, this);
-                    console.log('Action Button --- POINTERUP ---');
-                    actionButton.graphic.clear();
-                    actionButton.border.clear();
-                    actionButton.graphic.fillStyle(0x000000, SETTINGS.OPACITY);
-                    actionButton.graphic.fillCircle(buttonX, buttonY, actionButton.width as number);
-                    actionButton.border.lineStyle(SETTINGS.BORDER_LINE, SETTINGS.BORDER_COLOR, SETTINGS.OPACITY);
-                    actionButton.border.strokeCircle(buttonX, buttonY, actionButton.width + 2 as number);
-                }); 
+                    this.pressButton(circle);
+                });
+                // .on('pointerup', (_pointer: any, _localX: any, _localY: any, _event: any) => {
+                //     // this.pressButton(circle, this);
+                //     console.log('Action Button --- POINTERUP ---');
+                //     circle.graphic.clear();
+                //     circle.border.clear();
+                //     circle.graphic.fillStyle(0x000000, SETTINGS.OPACITY);
+                //     circle.graphic.fillCircle(buttonX, buttonY, circle.width as number);
+                //     circle.border.lineStyle(SETTINGS.BORDER_LINE, SETTINGS.BORDER_COLOR, SETTINGS.OPACITY);
+                //     circle.border.strokeCircle(buttonX, buttonY, circle.width + 2 as number);
+                // }); 
 
-        actionButton.graphic.setScrollFactor(0);
-        actionButton.border.setScrollFactor(0);
-        actionButton.graphic.setDepth(2);
+        circle.graphic.setScrollFactor(0);
+        circle.border.setScrollFactor(0);
+        circle.graphic.setDepth(2);
 
-        // this.actionButtons.push(actionButton);
-        this.add.existing(actionButton.border);
-        this.add.existing(actionButton.graphic);
+        this.add.existing(circle.border);
+        this.add.existing(circle.graphic);
 
         EventBus.emit('current-scene-ready', this);
     }
@@ -179,6 +172,42 @@ export class Game extends Scene
     {
         this.scene.start('GameOver');
     }
+
+    pressButton(button: Button) {
+        console.log('Action Button --- POINTERDOWN ---');
+        this.joystick.resetPointer();
+        let time: number = 0;
+        this.setCurrent(time, button.total, button);
+        const timer = this.time.addEvent({
+            delay: 50,
+            callback: () => {
+                time += 5;
+                this.setCurrent(time, button.total, button);
+                if (time >= button.total) {
+                    timer.remove();
+                }    
+            },
+            loop: true,
+        });
+    };
+
+    setCurrent(current: number, limit: number, button: Button) {
+        const progressPercentage = current / limit;
+        if (current / limit >= 1) {
+            button.graphic.clear();
+            button.graphic.fillStyle(button.color, SETTINGS.OPACITY);
+            button.graphic.fillCircle(button.x, button.y, SETTINGS.BUTTON_WIDTH * SETTINGS.SCALE * button.current / button.total);
+            button.border.clear();
+            button.border.lineStyle(SETTINGS.BORDER_LINE, SETTINGS.BORDER_COLOR, SETTINGS.OPACITY);
+            button.border.strokeCircle(button.x, button.y, (SETTINGS.BUTTON_WIDTH + 2) * SETTINGS.SCALE * button.current / button.total);
+            button.graphic.setInteractive();
+        } else {
+            button.graphic.fillStyle(0xFFC700, SETTINGS.OPACITY);
+            button.graphic.fillCircle(button.x, button.y, button.width * progressPercentage);
+            button.graphic.disableInteractive();
+        };
+        button.current = progressPercentage * button.total;
+    };
 
     update ()
     {
